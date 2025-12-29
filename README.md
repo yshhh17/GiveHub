@@ -1,4 +1,4 @@
-# 💰 Donation App
+# 💰 GiveHub
 
 A FastAPI-based backend application for handling donations through PayPal integration. This project provides a complete REST API for user authentication, donation management, and PayPal sandbox payment processing.
 
