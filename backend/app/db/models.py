@@ -11,6 +11,7 @@ class User(Base):
     total_donated = Column(Integer, default=0)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    verified = Column(Boolean, default=False, nullable=False)
 
     donations = relationship("Donation", back_populates="user")
 
