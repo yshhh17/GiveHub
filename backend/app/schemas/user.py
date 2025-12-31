@@ -23,3 +23,8 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     id: Optional[int] = None
+
+
+class VerifyOtp(BaseModel):
+    email: EmailStr
+    otp: str
