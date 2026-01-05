@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from sqlalchemy.orm import Session
 from .db.database import Base, engine, get_db
 from .db.models import User, Donation
-from .routers import users, donations
+from .routers import users, donations, webhook
 
 
 app = FastAPI()
@@ -15,3 +15,4 @@ def greet():
 
 app.include_router(users.router)
 app.include_router(donations.router)
+app.include_router(webhook.router)

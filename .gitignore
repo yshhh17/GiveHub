@@ -58,3 +58,5 @@ data/models/*.pkl
 # OS
 .DS_Store
 Thumbs.db
+dump.rdb
+*.rdb
