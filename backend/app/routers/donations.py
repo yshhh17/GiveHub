@@ -15,6 +15,7 @@ from ..services.paypal_service import paypal_service
 from typing import List
 import logging
 from ..services.email import send_payment_done_email
+from ..core.rate_limit import limiter
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +25,8 @@ router = APIRouter(
 )
 
 @router.post("/create-order", response_model=PayPalOrderResponse)
-async def create_donation_order(donation: DonationCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+@limiter.limit("2/minute")
+async def create_donation_order(request: Request,donation: DonationCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     try:
         logger.info(f"User {current_user.id} creating donation order for ${donation.amount}")
 
@@ -63,7 +65,8 @@ async def create_donation_order(donation: DonationCreate, current_user: User = D
         detail=str(e))
 
 @router.post("/capture-order", response_model=DonationResponse)
-async def capture_donation_order(capture_request: PayPalCaptureRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+@limiter.limit("10/minute")
+async def capture_donation_order(request: Request,capture_request: PayPalCaptureRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
 
     try:
         logger.info(f"created a capture order request for user: {current_user.id}")
@@ -103,7 +106,8 @@ async def capture_donation_order(capture_request: PayPalCaptureRequest, current_
         detail=str(e))
 
 @router.get("/my-donations", response_model=List[DonationResponse])
-def get_my_donations(skip: int = 0,limit: int = 10,db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+@limiter.limit("20/minute")
+def get_my_donations(request: Request,skip: int = 0,limit: int = 10,db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     donations = db.query(Donation).filter(Donation.user_id == current_user.id).order_by(Donation.created_at.desc()).offset(skip).limit(limit).all()
 
     if not donations:
@@ -113,7 +117,8 @@ def get_my_donations(skip: int = 0,limit: int = 10,db: Session = Depends(get_db)
     return donations
 
 @router.get("/{donation_id}", response_model=DonationResponse)
-def get_donation(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+@limiter.limit("20/minute")
+def get_donation(request: Request,current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     donation = db.query(Donation).filter(Donation.id == donation_id, Donation.user_id == current_user.id).first()
 
     if not donation:
@@ -123,7 +128,8 @@ def get_donation(current_user: User = Depends(get_current_user), db: Session = D
     return donation
 
 @router.get("/verify/{order_id}")
-async def verify_order_status(order_id: str, current_user: User = Depends(get_current_user)):
+@limiter.limit("30/minute")
+async def verify_order_status(request: Request,order_id: str, current_user: User = Depends(get_current_user)):
     try:
         order_details = await paypal_service.get_order_details(order_id)
         return {

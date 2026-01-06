@@ -1,7 +1,7 @@
 from ..db.models import User, Donation
 from ..db.database import get_db
 from ..schemas.user import UserCreate, UserReturn, Token, VerifyOtp
-from fastapi import FastAPI, Response, HTTPException, APIRouter, Depends, status
+from fastapi import FastAPI, Response, HTTPException, APIRouter, Depends, status, Request
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from ..core.security import hash_password, verify_password, create_access_token
@@ -9,13 +9,18 @@ from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from ..services.otp import generate_otp, store_otp, redis_client
 from ..services.email import send_otp_email
 import asyncio
+import logging
+from ..core.rate_limit import limiter
+
+logging = logging.getLogger(__name__)
 
 router = APIRouter(
     tags=["users"]
 )
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
-async def create_user(user: UserCreate, db: Session = Depends(get_db)):
+@limiter.limit("5/hour")
+async def create_user(request: Request,user: UserCreate, db: Session = Depends(get_db)):
     user.password = hash_password(user.password)
     new_user = User(name= user.name, email=user.email, password=user.password)
     db.add(new_user)
@@ -30,7 +35,8 @@ async def create_user(user: UserCreate, db: Session = Depends(get_db)):
     }
 
 @router.post("/verify-email")
-async def verify_otp(data: VerifyOtp, db: Session = Depends(get_db)):
+@limiter.limit("10/hour")
+async def verify_otp(request: Request,data: VerifyOtp, db: Session = Depends(get_db)):
     stored_otp = await redis_client.get(f"otp:{data.email}")
     if not stored_otp:
         raise HTTPException(status_code=status.HTTP_408_REQUEST_TIMEOUT,
@@ -50,7 +56,8 @@ async def verify_otp(data: VerifyOtp, db: Session = Depends(get_db)):
     }
 
 @router.post("/login", response_model=Token)
-def user_login(user_creds: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+@limiter.limit("20/hour")
+def user_login(request: Request,user_creds: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     current_user = db.query(User).filter(User.email == user_creds.username).first()
     if not current_user:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid credentials")
