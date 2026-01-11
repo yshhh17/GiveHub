@@ -4,7 +4,7 @@ import { STORAGE_KEYS } from '../utils/constants';
 
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL,
+    baseURL: import.meta.env.VITE_API_BASE_URL,
     headers: {
         'Content-Type': 'application/json'
     },
@@ -61,6 +61,11 @@ export const authService = {
     return response.data;
   },
 
+  getCurrentUser: async () => {
+    const response = await api.get('/me');
+    return response.data;
+  },
+
   logout: () => {
     localStorage.removeItem(STORAGE_KEYS.TOKEN);
     localStorage.removeItem(STORAGE_KEYS.USER);
@@ -84,6 +89,7 @@ export const donationService = {
     const response = await api.get('/donations/my-donations', {
       params: { skip, limit },
     });
+    console.log(response.data[0].status);
     return response.data;
   },
 

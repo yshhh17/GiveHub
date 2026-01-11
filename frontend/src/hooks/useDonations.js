@@ -11,6 +11,7 @@ export const useDonations = () => {
     setError(null);
     try {
       const data = await donationService.getMyDonations();
+      console.log(data[0].status)
       setDonations(data);
     } catch (err) {
       setError(err.response?.data?.detail || 'Failed to fetch donations');

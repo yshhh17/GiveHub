@@ -41,7 +41,7 @@ const Navbar = () => {
                   My Donations
                 </Link>
                 <div className="flex items-center space-x-3 ml-4 pl-4 border-l border-gray-200">
-                  <span className="text-sm text-gray-600 max-w-[150px] truncate">{user?. email}</span>
+                  <span className="text-sm text-gray-600 max-w-[150px] truncate">{user?.name}</span>
                   <Button variant="secondary" size="sm" onClick={handleLogout}>
                     Logout
                   </Button>

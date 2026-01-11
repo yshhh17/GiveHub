@@ -42,7 +42,7 @@ const Dashboard = () => {
         {/* Welcome Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
-            Welcome back, {user?. email?. split('@')[0]}! 👋
+            Welcome back, {user?.name}! 👋
           </h1>
           <p className="mt-2 text-gray-600">Here's your donation summary</p>
         </div>
@@ -136,8 +136,8 @@ const Dashboard = () => {
                           {formatCurrency(donation.amount)}
                         </td>
                         <td className="px-4 py-3 text-sm">
-                          <Badge variant={donation.payment_status ?  'success' : 'warning'}>
-                            {donation. payment_status ? 'Completed' : 'Pending'}
+                          <Badge variant={donation.status ?  'success' : 'warning'}>
+                            {donation.status ? 'Completed' : 'Pending'}
                           </Badge>
                         </td>
                       </tr>
