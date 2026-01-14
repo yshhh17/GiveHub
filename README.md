@@ -7,17 +7,19 @@ GiveHub is a modern, full-stack crowdfunding and donation platform designed to c
 ## ✨ Features
 
 *   **Secure Authentication:** User registration, login, and email verification using JWT and OTP.
-*   **PayPal Integration:** Seamless donation processing with PayPal Sandbox/Live integration.
+*   **PayPal Integration:** Seamless donation processing with PayPal Sandbox/Live integration and Webhook support.
 *   **Real-time Dashboard:** Track total donations, view history, and manage your profile.
-*   **Responsive Design:** Fully responsive UI built with React and Tailwind CSS.
+*   **Responsive Design:** Fully responsive UI built with React, Tailwind CSS, and Material Design principles.
 *   **Secure Backend:** FastAPI backend with rate limiting, input validation, and SQL injection protection.
-*   **RESTful API:** Well-documented API with Swagger UI integration.
+*   **API Documentation:** Interactive Swagger UI documentation.
+*   **Containerized:** Fully Dockerized setup for easy deployment.
 
 ## 🛠️ Tech Stack
 
 ### **Backend**
-*   **Framework:** Python 3.8+ with [FastAPI](https://fastapi.tiangolo.com/)
+*   **Framework:** Python 3.9+ with [FastAPI](https://fastapi.tiangolo.com/)
 *   **Database:** PostgreSQL with SQLAlchemy ORM
+*   **Caching/Rate Limiting:** Redis
 *   **Authentication:** JWT (JSON Web Tokens) & Passlib (Argon2 hashing)
 *   **Payment Gateway:** PayPal REST SDK
 *   **Other Tools:** Pydantic (Validation), SlowAPI (Rate Limiting)
@@ -31,128 +33,114 @@ GiveHub is a modern, full-stack crowdfunding and donation platform designed to c
 
 ## 🚀 Getting Started
 
-Follow these instructions to get the project up and running on your local machine.
-
 ### Prerequisites
-*   Python 3.8 or higher
-*   Node.js 18 or higher
-*   PostgreSQL installed and running
-*   A PayPal Developer account (for Sandbox credentials)
+*   [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) (Recommended)
+*   **OR**
+*   Python 3.9+, Node.js 18+, and PostgreSQL/Redis installed locally.
 
 ---
 
-### 1. Backend Setup
+### 🐳 Quick Start with Docker (Recommended)
 
 1.  **Clone the repository:**
     ```bash
     git clone https://github.com/yshhh17/Donation-App.git
-    cd Donation-App/backend
+    cd Donation-App
     ```
 
-2.  **Create a virtual environment:**
+2.  **Configure Environment Variables:**
+    Copy the example env file:
     ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows use: venv\Scripts\activate
+    cp .env.example .env
     ```
+    *Edit `.env` and provide your PayPal and SMTP credentials.*
 
-3.  **Install dependencies:**
+3.  **Launch the application:**
     ```bash
-    pip install -r requirements.txt
+    docker-compose up --build
     ```
 
-4.  **Configure Environment Variables:**
-    Create a `.env` file in the `backend/` directory:
-    ```env
-    # Database
-    DATABASE_URL=postgresql://user:password@localhost:5432/donation_db
-
-    # Security
-    SECRET_KEY=your_super_secret_key_change_this
-    ALGORITHM=HS256
-    ACCESS_TOKEN_EXPIRE_TIME=30
-
-    # PayPal (Sandbox)
-    PAYPAL_MODE=sandbox
-    PAYPAL_CLIENT_ID=your_paypal_client_id
-    PAYPAL_CLIENT_SECRET=your_paypal_client_secret
-    PAYPAL_API_BASE=https://api-m.sandbox.paypal.com
-
-    # Email (For OTP)
-    MAIL_USERNAME=your_email@gmail.com
-    MAIL_PASSWORD=your_app_password
-    MAIL_FROM=your_email@gmail.com
-    MAIL_PORT=587
-    MAIL_SERVER=smtp.gmail.com
-    ```
-
-5.  **Run the Backend Server:**
-    ```bash
-    uvicorn app.main:app --reload
-    ```
-    The API will be available at `http://localhost:8000`.
-    API Docs (Swagger UI): `http://localhost:8000/docs`
+4.  **Access the apps:**
+    *   **Frontend:** `http://localhost:3000`
+    *   **Backend API:** `http://localhost:8000`
+    *   **API Docs:** `http://localhost:8000/docs`
 
 ---
 
-### 2. Frontend Setup
+### 🔧 Manual Local Setup
 
-1.  **Navigate to the frontend directory:**
+#### 1. Backend Setup
+1.  Navigate to the backend directory: `cd backend`
+2.  Create and activate a virtual environment:
     ```bash
-    cd ../frontend
+    python -m venv venv
+    source venv/bin/activate # Windows: venv\Scripts\activate
     ```
+3.  Install dependencies: `pip install -r requirements.txt`
+4.  Configure `.env` in the `backend/` folder (use `../.env.example` as a template).
+5.  Run the server: `uvicorn app.main:app --reload`
 
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
-
-3.  **Configure Environment Variables:**
-    Create a `.env` file in the `frontend/` directory:
+#### 2. Frontend Setup
+1.  Navigate to the frontend directory: `cd frontend`
+2.  Install dependencies: `npm install`
+3.  Configure `.env` in the `frontend/` folder:
     ```env
     VITE_API_BASE_URL=http://localhost:8000
     VITE_PAYPAL_CLIENT_ID=your_paypal_client_id
     ```
-
-4.  **Run the Frontend Development Server:**
-    ```bash
-    npm run dev
-    ```
-    The app will typically run at `http://localhost:5173`.
+4.  Run the development server: `npm run dev`
 
 ---
 
 ## 📂 Project Structure
 
-```
+```text
 Donation-App/
 ├── backend/
 │   ├── app/
 │   │   ├── core/           # Config, Security, Rate Limiting
 │   │   ├── db/             # Database connection & Models
-│   │   ├── routers/        # API Endpoints (Users, Donations)
-│   │   ├── schemas/        # Pydantic Models
+│   │   ├── routers/        # API Endpoints (Users, Donations, Webhooks)
+│   │   ├── schemas/        # Pydantic Models (Validation)
 │   │   ├── services/       # PayPal, Email, OTP services
-│   │   └── main.py         # Entry point
-│   └── requirements.txt
+│   │   └── main.py         # FastAPI Entry point
+│   └── Dockerfile
 │
-└── frontend/
-    ├── src/
-    │   ├── components/     # Reusable UI components
-    │   ├── context/        # Auth Context Provider
-    │   ├── hooks/          # Custom Hooks (useAuth, useDonations)
-    │   ├── pages/          # Application Pages
-    │   ├── services/       # API integration
-    │   └── utils/          # Helpers & Constants
-    └── tailwind.config.js
+├── frontend/
+│   ├── src/
+│   │   ├── components/     # Reusable UI components
+│   │   ├── context/        # Auth & State Context
+│   │   ├── hooks/          # Custom Hooks
+│   │   ├── pages/          # Route components
+│   │   ├── services/       # API/Axios configuration
+│   │   └── utils/          # Helpers & Constants
+│   └── Dockerfile
+│
+├── docker-compose.yml      # Orchestration for DB, Redis, Backend, Frontend
+└── .env.example            # Template for environment variables
 ```
 
-## 🔒 Security Best Practices implemented
-*   **Password Hashing:** Uses Argon2, the winner of the Password Hashing Competition.
-*   **Rate Limiting:** Protects API endpoints against brute-force attacks.
-*   **Input Validation:** Pydantic ensures all incoming data meets strict schema requirements.
-*   **CORS:** Configured to allow requests only from trusted origins (customizable).
-*   **Environment Variables:** Sensitive keys are never hardcoded.
+## 🔒 Security & Best Practices
+*   **Argon2 Password Hashing:** State-of-the-art hashing for user passwords.
+*   **JWT Authentication:** Stateless secure authentication.
+*   **Rate Limiting:** IP-based and User-based rate limiting to prevent abuse.
+*   **Input Sanitization:** Automated validation using Pydantic.
+*   **Environment Isolation:** Strict use of environment variables for sensitive data.
 
 ## 🤝 Contributing
 
+
+
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+
+
+1.  Fork the Project
+
+2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+
+3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+
+4.  Push to the Branch (`git push origin feature/AmazingFeature`)
+
+5.  Open a Pull Request
