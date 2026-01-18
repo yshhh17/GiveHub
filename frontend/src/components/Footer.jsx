@@ -31,16 +31,6 @@ const Footer = () => {
                   Privacy Policy
                 </Link>
               </li>
-              <li>
-                <Link to="/terms" className="text-gray-400 hover:text-white transition text-sm">
-                  Terms of Service
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" className="text-gray-400 hover:text-white transition text-sm">
-                  Contact Us
-                </Link>
-              </li>
             </ul>
           </div>
 

@@ -17,7 +17,8 @@ class Settings(BaseSettings):
     smtp_user: str
     smtp_pass: str
     from_email: str
-    paypal_webhook_id: str 
+    paypal_webhook_id: str
+    frontend_url: str
 
     class Config:
         env_file = ".env"

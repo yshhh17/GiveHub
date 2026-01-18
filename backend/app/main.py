@@ -8,6 +8,7 @@ from slowapi.errors import RateLimitExceeded
 import logging
 from fastapi.middleware.cors import CORSMiddleware
 from .core.security import get_current_user
+from .core.config import settings
 
 
 logging.basicConfig(
@@ -25,11 +26,16 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:5173",
+        settings.frontend_url,
+    ],
+    allow_credentials=False,  # 🔑 IMPORTANT
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 
 app.state.limiter = limiter
