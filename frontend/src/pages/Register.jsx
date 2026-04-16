@@ -80,7 +80,11 @@ const Register = () => {
     setLoading(true);
 
     // Register user (without confirmPassword)
-    const { confirmPassword, ...registerData } = formData;
+    const registerData = {
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+    };
     const result = await register(registerData);
     
     setLoading(false);
