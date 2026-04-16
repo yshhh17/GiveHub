@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { donationService } from '../services/api';
 
 export const useDonations = () => {
@@ -6,21 +6,20 @@ export const useDonations = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchDonations = async () => {
+  const fetchDonations = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const data = await donationService.getMyDonations();
-      console.log(data[0].status)
       setDonations(data);
     } catch (err) {
       setError(err.response?.data?.detail || 'Failed to fetch donations');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const createOrder = async (amount) => {
+  const createOrder = useCallback(async (amount) => {
     setLoading(true);
     setError(null);
     try {
@@ -32,9 +31,9 @@ export const useDonations = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const captureOrder = async (orderId) => {
+  const captureOrder = useCallback(async (orderId) => {
     setLoading(true);
     setError(null);
     try {
@@ -46,7 +45,7 @@ export const useDonations = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   return {
     donations,
