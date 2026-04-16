@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useDonations } from '../hooks/useDonations';
@@ -11,30 +11,28 @@ import Spinner from '../components/Spinner';
 const Dashboard = () => {
   const { user } = useAuth();
   const { donations, loading, fetchDonations } = useDonations();
-  const [stats, setStats] = useState({
-    total: 0,
-    count: 0,
-    thisMonth: 0,
-  });
+
+  const stats = useMemo(() => {
+    if (donations.length === 0) {
+      return { total: 0, count: 0, thisMonth: 0 };
+    }
+
+    const currentMonth = new Date().getMonth();
+    const total = donations.reduce((sum, donation) => sum + donation.amount, 0);
+    const thisMonth = donations
+      .filter((donation) => new Date(donation.created_at).getMonth() === currentMonth)
+      .reduce((sum, donation) => sum + donation.amount, 0);
+
+    return {
+      total,
+      count: donations.length,
+      thisMonth,
+    };
+  }, [donations]);
 
   useEffect(() => {
     fetchDonations();
-  }, []);
-
-  useEffect(() => {
-    if (donations.length > 0) {
-      const total = donations.reduce((sum, d) => sum + d.amount, 0);
-      const thisMonth = donations
-        .filter(d => new Date(d.created_at).getMonth() === new Date().getMonth())
-        .reduce((sum, d) => sum + d.amount, 0);
-      
-      setStats({
-        total,
-        count: donations.length,
-        thisMonth,
-      });
-    }
-  }, [donations]);
+  }, [fetchDonations]);
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
