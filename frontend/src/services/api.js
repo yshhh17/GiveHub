@@ -90,7 +90,6 @@ export const donationService = {
     const response = await api.get('/donations/my-donations', {
       params: { skip, limit },
     });
-    console.log(response.data[0].status);
     return response.data;
   },
 
